@@ -34,7 +34,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         colorCodeTv = (TextView)findViewById(R.id.colorCodeTv);
+
         colorView = (View)findViewById(R.id.colorView);
+        colorView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String colorCode = colorCodeTv.getText().toString();
+                Intent intent = new Intent(getApplicationContext(), ColorActivity.class);
+                intent.putExtra("colorCode", colorCode);
+                startActivity(intent);
+            }
+        });
+
         ColorPickerView colorPickerView = (ColorPickerView)findViewById(R.id.colorPickerView);
         colorPickerView.setColorListener(new ColorEnvelopeListener() {
             @Override
