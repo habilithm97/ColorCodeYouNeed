@@ -3,6 +3,8 @@ package com.example.colorcodeyouneed;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.oss.licenses.OssLicensesActivity;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
@@ -34,6 +37,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         colorCodeTv = (TextView)findViewById(R.id.colorCodeTv);
+        colorCodeTv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                String colorCode = colorCodeTv.getText().toString();
+                createClipData(colorCode);
+                return true;
+            }
+        });
 
         colorView = (View)findViewById(R.id.colorView);
         colorView.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +71,15 @@ public class MainActivity extends AppCompatActivity {
 
         AlphaSlideBar alphaSlideBar = (AlphaSlideBar)findViewById(R.id.alphaSlideBar);
         colorPickerView.attachAlphaSlider(alphaSlideBar);
+    }
+
+    private void createClipData(String text) {
+        // 클립보드 복사
+        ClipboardManager manager = (ClipboardManager) getApplicationContext().getSystemService(getApplicationContext().CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("text", text);
+        // 클립보드에 배치
+        manager.setPrimaryClip(clipData);
+        Toast.makeText(getApplicationContext(), "복사되었습니다. ", Toast.LENGTH_SHORT).show();
     }
 
     @Override
