@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private View colorView;
 
     private InputFilter inputFilter;
+
+    private Toast toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +123,19 @@ public class MainActivity extends AppCompatActivity {
                 String colorCode = colorCodeEdt.getText().toString();
                 if(colorCodeEdt.getText().toString().length() == 8) { // 코드 길이가 8자리일 때만
                     colorView.setBackgroundColor(Color.parseColor("#" + colorCode));
-                } 
+                } else {
+                    showToast(getApplicationContext(), "색상 코드를 입력해주세요. ");
+                }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showToast(Context context, String msg) {
+        if(toast == null) {
+            toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+        } else { // 기존에 토스트 객체가 있다면 추가 생성하지 않음
+            toast.setText(msg);
+        }
+        toast.show();
     }
 }
