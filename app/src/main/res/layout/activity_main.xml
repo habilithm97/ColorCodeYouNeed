@@ -5,15 +5,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/colorCodeTv"
+    <EditText
+        android:id="@+id/colorCodeEdt"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_marginTop="50dp"
-        android:padding="5dp"
-        android:text="색상값"
         android:textSize="20sp" />
 
     <View

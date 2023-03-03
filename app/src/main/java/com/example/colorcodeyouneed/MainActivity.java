@@ -6,11 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,25 +26,41 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.skydoves.colorpickerview.sliders.AlphaSlideBar;
 import com.skydoves.colorpickerview.sliders.BrightnessSlideBar;
 
+import java.util.regex.Pattern;
+
 public class MainActivity extends AppCompatActivity {
 
-    private TextView colorCodeTv;
+    private EditText colorCodeEdt;
     private View colorView;
+
+    private InputFilter inputFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        inputFilter = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                Pattern pattern = Pattern.compile("^[a-zA-Z0-9]+$"); // 영어와 숫자만 허용
+                if (!pattern.matcher(source).matches()) {
+                    return "";
+                }
+                return null;
+            }
+        };
+
         initView();
     }
 
     private void initView() {
-        colorCodeTv = (TextView)findViewById(R.id.colorCodeTv);
-        colorCodeTv.setOnLongClickListener(new View.OnLongClickListener() {
+        colorCodeEdt = (EditText) findViewById(R.id.colorCodeEdt);
+        colorCodeEdt.setFilters(new InputFilter[] {inputFilter, new InputFilter.LengthFilter(8)}); // 영어와 숫자만 허용하는 필터 적용(최대 길이 8자리 제한)
+        colorCodeEdt.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                String colorCode = colorCodeTv.getText().toString();
+                String colorCode = colorCodeEdt.getText().toString();
                 createClipData(colorCode);
                 return true;
             }
@@ -50,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         colorView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String colorCode = colorCodeTv.getText().toString();
+                String colorCode = colorCodeEdt.getText().toString();
                 Intent intent = new Intent(getApplicationContext(), ColorActivity.class);
                 intent.putExtra("colorCode", colorCode);
                 startActivity(intent);
@@ -61,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         colorPickerView.setColorListener(new ColorEnvelopeListener() {
             @Override
             public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
-                colorCodeTv.setText(envelope.getHexCode());
+                colorCodeEdt.setText(envelope.getHexCode());
                 colorView.setBackgroundColor(envelope.getColor());
             }
         });
@@ -74,11 +94,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createClipData(String text) {
-        // 클립보드 복사
-        ClipboardManager manager = (ClipboardManager) getApplicationContext().getSystemService(getApplicationContext().CLIPBOARD_SERVICE);
+        // 텍스트 복사
+        ClipboardManager clipboardManager = (ClipboardManager) getApplicationContext().getSystemService(getApplicationContext().CLIPBOARD_SERVICE);
         ClipData clipData = ClipData.newPlainText("text", text);
-        // 클립보드에 배치
-        manager.setPrimaryClip(clipData);
+        clipboardManager.setPrimaryClip(clipData); // 복사한 텍스트를 클립보드에 배치
         Toast.makeText(getApplicationContext(), "복사되었습니다. ", Toast.LENGTH_SHORT).show();
     }
 
@@ -97,6 +116,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu2:
                 startActivity(new Intent(getApplicationContext(), OssLicensesMenuActivity.class));
                 break;
+            case R.id.restart:
+                String colorCode = colorCodeEdt.getText().toString();
+                if(colorCodeEdt.getText().toString().length() == 8) { // 코드 길이가 8자리일 때만
+                    colorView.setBackgroundColor(Color.parseColor("#" + colorCode));
+                } 
         }
         return super.onOptionsItemSelected(item);
     }
